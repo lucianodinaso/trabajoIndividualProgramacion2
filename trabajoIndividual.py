@@ -33,7 +33,6 @@ class Series():
                         'str': str,
                         'bool': bool}
         
-
         #Caso usuario, no pasa dtype explicito, toma el type del primer valor de la lista, ya esta validada que son todas del mismo tipo de datos
         if dtype is None:
                 tipo_primer_elemento = type(lista[0])
@@ -66,30 +65,68 @@ class Series():
 
                 return dtype
             
-
-    
     def __repr__(self):
         elementos = [str(self.lista[i]) for i in range(self.len)]
         return f" Series: {self.name} \n len: {self.len} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
 
+    #Metodos
+    def head(self, n=5):
+        elementos = [str(self.lista[i]) for i in range(n)]
+        return f" Series: {self.name} \n len: {n} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+
+    def tail(self, n=5):
+        elementos = [str(i) for i in self.lista[:-n-1:-1]] #Start = último valor de la lista, stop : n -1, n no lo incluye el slicing, Step: -1 reversa
+        return f" Series: {self.name} \n len: {n} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+
+    def clone(self):
+        #Creamos una nueva instancia de la clase Serie, con los datos de la lista
+        listaClon = Series(self.lista.copy())
+        return listaClon
+    
+    def append(self, x):
+        self.lista.append(x) #utilizó el metodo build in
+        self.len = len(self.lista) #actualiza la longitud de la lista 
+        return self.lista
+
 
 a = Series([True, True], dtype= 'bool')        
 
-print("*"*40)
-print("*"*15, "Ejemplo 1", "*"*14)
-print("*"*40)
-serie = Series([1,2,3,4])
-print(serie)
+# print("*"*40)
+# print("*"*15, "Ejemplo 1", "*"*14)
+# print("*"*40)
+# serie = Series([1,2,3,4])
+# print(serie)
 
 
-print("*"*40)
-print("*"*15, "Serie nombrada", "*"*14)
-print("*"*40)
-serie = Series([1.0, 2.0, 3.0], name = 'x')
-print(serie)
+# print("*"*40)
+# print("*"*15, "Serie nombrada", "*"*14)
+# print("*"*40)
+# serie = Series([1.0, 2.0, 3.0], name = 'x')
+# print(serie)
 
-print("*"*40)
-print("*"*10, "Serie nombrada y tipo explicito", "*"*14)
-print("*"*40)
-serie = Series([1.4, 2.5, 2.5], name = 'cantidad', dtype= 'float')
-print(serie)
+# print("*"*40)
+# print("*"*10, "Serie nombrada y tipo explicito", "*"*14)
+# print("*"*40)
+# seriePrueba = Series([1.1, 1.2, 1.3, 1.4, 1.5, 2.1,2.2,2.3,2.5,95.0,96.0,97.0,98.0,99.0], name = 'cantidad', dtype= 'float')
+# print(seriePrueba)
+
+# seriePrueba2 = Series([1,2,3,4,5,6,7,8,9,10])
+
+# print("*"*60)
+# print(seriePrueba2.head())
+
+
+# print("*"*60)
+# print(seriePrueba2.tail(3))
+
+seriePruebaClone = Series(list("ABCD"))
+print(seriePruebaClone)
+
+print("*"*30)
+print("LISTA CLONADA")
+listaClonada = seriePruebaClone.clone()
+print(listaClonada)
+
+listaClonada.append('E')
+listaClonada.append('F')
+print(listaClonada)
