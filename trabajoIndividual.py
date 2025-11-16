@@ -16,6 +16,8 @@ class Series():
         
         tipos_datos = ['int', 'float', 'str', 'bool']
         mismo_tipo = False
+
+
         primer_tipo = type(lista[0]) #Guardo el tipo de dato del primer valor de la lista
 
         for i in lista:
@@ -88,8 +90,106 @@ class Series():
         self.len = len(self.lista) #actualiza la longitud de la lista 
         return self.lista
 
+    def extend(self, s):
 
-a = Series([True, True], dtype= 'bool')        
+        for i in s.lista:
+            self.lista.append(i)
+
+        self.len = len(self.lista) #actualiza la longitud de la lista 
+
+        return self
+
+    def filter(self, f):
+        nuevaSerie = []
+
+        for i in self.lista:
+
+            #Aplica la funcion de la llamada , a cada elemento.
+            if f(i):
+                nuevaSerie.append(i)
+
+        return Series(nuevaSerie)
+    
+    def where(self, f):
+       
+        nuevaSerie = []
+
+        for indice, i in enumerate(self.lista):
+
+            #Aplica la funcion de la llamada , a cada elemento.
+            if f(i):
+                nuevaSerie.append(indice)
+
+        return Series(nuevaSerie)    
+        
+    
+    def is_null(self):
+       
+        nuevaSerie = []
+
+        for i in self.lista:
+
+            if i is None:
+                nuevaSerie.append(True)
+            else:
+                nuevaSerie.append(False)
+
+        return Series(nuevaSerie)    
+
+    def is_not_null(self):
+       
+        nuevaSerie = []
+
+        for i in self.lista:
+
+            if i is None:
+                nuevaSerie.append(False)
+            else:
+                nuevaSerie.append(True)
+
+        return Series(nuevaSerie)    
+    
+    def rename(self, nombre):
+        self.name = nombre
+        return self
+    
+    def sort(self, descendig = False, in_place = False):
+
+        nuevaSerie = []
+
+        # Por defecto crea una nueva lista el metodo
+        if in_place == False:
+            
+            if descendig == False:
+                nuevaSerie = sorted(self.lista)
+            else:
+                nuevaSerie = sorted(self.lista , reverse= True)
+            
+            return Series(nuevaSerie)
+        
+        else:
+
+            if descendig == False:
+                self.lista.sort()
+            else:
+                self.lista.sort(reverse= True)
+
+            return self
+        
+    def argsort(self, descendig =  False):
+
+        serie_indice_valor = enumerate(self.lista)
+
+        lista_indices_ordenados = sorted(serie_indice_valor, key = lambda x : x[1])
+        lista_indices_finales = [indices for indices, i in lista_indices_ordenados]
+        
+        
+        return lista_indices_finales
+
+
+# ****************SENTENCIAS DE PRUEBA************************
+
+# a = Series([True, True], dtype= 'bool')        
 
 # print("*"*40)
 # print("*"*15, "Ejemplo 1", "*"*14)
@@ -119,14 +219,76 @@ a = Series([True, True], dtype= 'bool')
 # print("*"*60)
 # print(seriePrueba2.tail(3))
 
-seriePruebaClone = Series(list("ABCD"))
-print(seriePruebaClone)
+# seriePruebaClone = Series(list("ABCD"))
+# print(seriePruebaClone)
 
-print("*"*30)
-print("LISTA CLONADA")
-listaClonada = seriePruebaClone.clone()
-print(listaClonada)
+# print("*"*30)
+# print("LISTA CLONADA")
+# listaClonada = seriePruebaClone.clone()
+# print(listaClonada)
 
-listaClonada.append('E')
-listaClonada.append('F')
-print(listaClonada)
+# listaClonada.append('E')
+# listaClonada.append('F')
+# print(listaClonada)
+
+# print("*"*30)
+# serie = Series([1,2,3,4,5,6,7,8,9])
+# print(serie)
+# print(serie.filter( lambda x: x > 5))
+
+# s1 = Series([1,2,3])
+# s2 = Series([4,5,6])
+# print(s1.extend(s2))
+
+
+# print("*"*30)
+# serie = Series([1,2,3,4,5,6,7,8,9])
+# print(serie)
+# print(serie.filter( lambda x: x > 5))
+
+# s = Series([1, 20, 50, 2, 100, 3])
+# indices = s.where(lambda x : x < 20)
+
+# print(indices)
+
+# s = Series([1, 20, 50, 2, 100, 3])
+# print(s.is_null())
+
+# s2 = Series([None, None])
+# print(s2.is_null())
+
+# s3 = Series([1, 20, 50, 2, 100, 3])
+# print(s3.is_not_null())
+
+# s4 = Series([None, None])
+# print(s4.is_not_null())
+
+# serieA = Series([1,2,3,4,5], name = 'Primeros')
+# print(serieA)
+
+# serieA.rename('Segundos')
+# print(serieA)
+
+# s = Series([128.0, 256.0, 42.5, 35.0])
+# print(s)
+
+# print('*'*20, 'PRUEBA SORT - ORDEN ASCENDENTE POR DEFECTO')
+# print(s.sort())
+# print(s)
+
+
+# print('*'*20, 'PRUEBA SORT + ORDEN DESCENDENTE')
+# print(s.sort(descendig= True))
+# print(s)
+
+# print('*'*20, 'PRUEBA SORT - ORDEN ASCENDENTE POR DEFECTO + MODIFICA SERIE ORIGINAL')
+# print(s.sort(in_place= True))
+# print(s)
+
+# print('*'*20, 'PRUEBA SORT - ORDEN DESCENDENTE + MODIFICA SERIE ORIGINAL')
+# print(s.sort(descendig= True ,in_place= True))
+# print(s)
+
+s = Series([128, 256, 42, 35])
+indices = s.argsort()
+print(indices)
