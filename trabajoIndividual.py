@@ -10,23 +10,21 @@ class Series():
         self.lista = lista
         self.dtype = self.chequeo_dtype(lista , dtype)
         self.name = name
-        self.len = len(self.lista)
+        self.len = self.__len__()
 
     def chequeo_mismo_tipo(self, lista):
         
-        tipos_datos = ['int', 'float', 'str', 'bool']
-        mismo_tipo = False
+        tipos_datos = ['int', 'float', 'str', 'bool', 'None']
 
+        listaSinNone = [x  for x in lista if x is not None]
 
-        primer_tipo = type(lista[0]) #Guardo el tipo de dato del primer valor de la lista
-
-        for i in lista:
+        if listaSinNone == []:
+            raise TypeError("No podemos inicializar la Serie, no contiene por lo menos un tipo de dato valido")
+        for i in listaSinNone:
+            primer_tipo = type(listaSinNone[0]) #Guardo el tipo de dato del primer valor de la lista
             if type(i) != primer_tipo:
-                mismo_tipo = False
-                raise "No podemos inicializar la Serie, por ser objetos de diferentes tipos"
-        else:
-            mismo_tipo = True
-         
+                raise TypeError("No podemos inicializar la Serie, por ser objetos de diferentes tipos")
+                
 
     def chequeo_dtype(self, lista, dtype):
 
@@ -35,9 +33,11 @@ class Series():
                         'str': str,
                         'bool': bool}
         
-        #Caso usuario, no pasa dtype explicito, toma el type del primer valor de la lista, ya esta validada que son todas del mismo tipo de datos
+        listaSinNone = [x  for x in lista if x is not None]
+
+        #Caso usuario, no pasa dtype explicito, toma el type del primer valor de la lista filtrada sin None, ya esta validada que son todas del mismo tipo de datos
         if dtype is None:
-                tipo_primer_elemento = type(lista[0])
+                tipo_primer_elemento = type(listaSinNone[0])
                 dtype_string = str(tipo_primer_elemento)
 
                 for k, v in tipos_datos.items():
@@ -70,6 +70,12 @@ class Series():
     def __repr__(self):
         elementos = [str(self.lista[i]) for i in range(self.len)]
         return f" Series: {self.name} \n len: {self.len} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+    
+    def __len__(self):
+        return len(self.lista)
+    
+    def __iter__(self):
+        return iter(self.lista)
 
     #Metodos
     def head(self, n=5):
@@ -289,6 +295,16 @@ class Series():
 # print(s.sort(descendig= True ,in_place= True))
 # print(s)
 
-s = Series([128, 256, 42, 35])
-indices = s.argsort()
-print(indices)
+# s = Series([128, 256, 42, 35])
+# indices = s.argsort()
+# print(indices)
+
+#-----PRUEBA DE INICIALIZACION CON VALORES None-----
+
+# #Lanzamiento de errores, la serie no admite solo None
+# SerieNone = Series([None, None, None, None])
+# print(SerieNone)
+
+# #Lanzamiento de errores, la serie no se inicializa con datos de diferentes tipos.
+# SerieDiferentesTipos = Series([2,3,5.6])
+# print(SerieDiferentesTipos)
