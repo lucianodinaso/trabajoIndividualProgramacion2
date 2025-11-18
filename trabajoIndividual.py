@@ -8,7 +8,7 @@ class Series():
     def __init__(self, lista ,name="''", dtype= None):
         self.chequeo_mismo_tipo(lista)
         self.lista = lista
-        self.dtype = self.chequeo_dtype(lista , dtype)
+        self.dtype, self.dtypeString = self.chequeo_dtype(lista , dtype)
         self.name = name
         self.len = self.__len__()
 
@@ -44,7 +44,7 @@ class Series():
                     if tipo_primer_elemento == v:
                         dtype_string = k
                         break
-                return dtype_string
+                return tipo_primer_elemento, dtype_string
         else:       
 
             if dtype in tipos_datos:
@@ -65,11 +65,11 @@ class Series():
                 self.lista = lista_reconvertida
 
 
-                return dtype
+                return funcion_reconversion, dtype
             
     def __repr__(self):
         elementos = [str(self.lista[i]) for i in range(self.len)]
-        return f" Series: {self.name} \n len: {self.len} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+        return f" Series: {self.name} \n len: {self.len} \n dtype: {self.dtypeString} \n [ \n {'\n '  .join(elementos) } \n] "
     
     def __len__(self):
         return len(self.lista)
@@ -155,6 +155,19 @@ class Series():
 
         return Series(nuevaSerie)    
     
+    def fill_null(self, x):
+
+        if type(x) == self.dtype:
+
+            for indice, v in enumerate(self.lista):
+                if v is None:
+                    self.lista[indice] = x
+
+        else:
+            raise TypeError('No se puede completar la Serie con diferentes tipos de datos')
+
+
+
     def rename(self, nombre):
         self.name = nombre
         return self
@@ -193,15 +206,22 @@ class Series():
         return lista_indices_finales
 
 
-# ****************SENTENCIAS DE PRUEBA************************
+# # ****************SENTENCIAS DE PRUEBA************************
 
 # a = Series([True, True], dtype= 'bool')        
+# print(a)
 
 # print("*"*40)
-# print("*"*15, "Ejemplo 1", "*"*14)
+# print("*"*15, "INICIALIZACION DE SERIES", "*"*14)
 # print("*"*40)
-# serie = Series([1,2,3,4])
-# print(serie)
+# serieInt = Series([1,2,3,4])
+# print(serieInt)
+# serieInt = Series([1,2,3,4], name= 'Integers', dtype= 'float')
+# print(serieInt)
+
+
+# a = Series([True, True], dtype= 'bool')        
+# print(a)
 
 
 # print("*"*40)
@@ -260,13 +280,13 @@ class Series():
 # s = Series([1, 20, 50, 2, 100, 3])
 # print(s.is_null())
 
-# s2 = Series([None, None])
+# s2 = Series([1, None])
 # print(s2.is_null())
 
 # s3 = Series([1, 20, 50, 2, 100, 3])
 # print(s3.is_not_null())
 
-# s4 = Series([None, None])
+# s4 = Series([3, None, None])
 # print(s4.is_not_null())
 
 # serieA = Series([1,2,3,4,5], name = 'Primeros')
@@ -287,10 +307,6 @@ class Series():
 # print(s.sort(descendig= True))
 # print(s)
 
-# print('*'*20, 'PRUEBA SORT - ORDEN ASCENDENTE POR DEFECTO + MODIFICA SERIE ORIGINAL')
-# print(s.sort(in_place= True))
-# print(s)
-
 # print('*'*20, 'PRUEBA SORT - ORDEN DESCENDENTE + MODIFICA SERIE ORIGINAL')
 # print(s.sort(descendig= True ,in_place= True))
 # print(s)
@@ -299,7 +315,7 @@ class Series():
 # indices = s.argsort()
 # print(indices)
 
-#-----PRUEBA DE INICIALIZACION CON VALORES None-----
+# #-----PRUEBA DE INICIALIZACION CON VALORES None-----
 
 # #Lanzamiento de errores, la serie no admite solo None
 # SerieNone = Series([None, None, None, None])
@@ -308,3 +324,11 @@ class Series():
 # #Lanzamiento de errores, la serie no se inicializa con datos de diferentes tipos.
 # SerieDiferentesTipos = Series([2,3,5.6])
 # print(SerieDiferentesTipos)
+
+# #-----------PRUEBA FILL_NULL
+# s = Series([5, None, None, 10])
+# print(s)
+
+# s.fill_null(7)
+# print(s)
+
