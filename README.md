@@ -6,6 +6,7 @@ como lenguaje de desarrollo. Además, busca comprender el funcionamiento interno
 estructuras de datos tabulares y los principios de diseño que las hacen posibles.
 
 2 Clase Series
+
 Una Series representa una estructura unidimensional de datos, similar a un vector o una columna. En nuestro caso, soportan cuatro tipos de datos: numéricos enteros (int), numéricos flotantes (float), texto (str) y booleanos (bool). Las series pueden también incluir valores nulos, representados por None.
 
 2.1 Inicialización
