@@ -204,131 +204,75 @@ class Series():
         
         
         return lista_indices_finales
+    
+    def chequeo_serie_nuemrica(self):
+
+        if self.dtypeString not in ['int', 'float']:
+            raise TypeError('La función requiere valores númericos')
+        else:
+            return True
+        
+    def get_lista_numerica(self):
+        listaSinNone = [x  for x in self.lista if x is not None]
+        
+        return listaSinNone
+    
+
+    def min(self):
+        self.chequeo_serie_nuemrica()
+        return min(self.get_lista_numerica())
+
+    def max(self):
+        self.chequeo_serie_nuemrica()
+        return max(self.get_lista_numerica())
+
+    def sum(self):
+        self.chequeo_serie_nuemrica()
+        return sum(self.get_lista_numerica())
+    
+    def mean(self):
+        self.chequeo_serie_nuemrica()
+        lenListaSinNone = len([x  for x in self.lista if x is not None])
+        return sum(self.get_lista_numerica()) / lenListaSinNone
+
+    
+    def product(self):
+        self.chequeo_serie_nuemrica()
+        resultado = 1
+
+        for i in self.get_lista_numerica():
+            resultado *= i
+
+        return resultado
+    
+    def var(self):
+        self.chequeo_serie_nuemrica()
+        listaNumerica = self.get_lista_numerica()
+        lenListaSinNone = len(listaNumerica)
+        media = self.mean()
+        resultado = 0
 
 
-# # ****************SENTENCIAS DE PRUEBA************************
+        for i in listaNumerica:
+            resultado += (i - media) ** 2
 
-# a = Series([True, True], dtype= 'bool')        
-# print(a)
-
-# print("*"*40)
-# print("*"*15, "INICIALIZACION DE SERIES", "*"*14)
-# print("*"*40)
-# serieInt = Series([1,2,3,4])
-# print(serieInt)
-# serieInt = Series([1,2,3,4], name= 'Integers', dtype= 'float')
-# print(serieInt)
+        return resultado / lenListaSinNone
+    
+    def std(self):
+        return self.var()**0.5
 
 
-# a = Series([True, True], dtype= 'bool')        
-# print(a)
 
 
-# print("*"*40)
-# print("*"*15, "Serie nombrada", "*"*14)
-# print("*"*40)
-# serie = Series([1.0, 2.0, 3.0], name = 'x')
-# print(serie)
+s1 = Series([1, 4, 5, 2, 10, 6, 3, 7, 8, 9])
+s2 = Series([True, True, False, True])
 
-# print("*"*40)
-# print("*"*10, "Serie nombrada y tipo explicito", "*"*14)
-# print("*"*40)
-# seriePrueba = Series([1.1, 1.2, 1.3, 1.4, 1.5, 2.1,2.2,2.3,2.5,95.0,96.0,97.0,98.0,99.0], name = 'cantidad', dtype= 'float')
-# print(seriePrueba)
-
-# seriePrueba2 = Series([1,2,3,4,5,6,7,8,9,10])
-
-# print("*"*60)
-# print(seriePrueba2.head())
-
-
-# print("*"*60)
-# print(seriePrueba2.tail(3))
-
-# seriePruebaClone = Series(list("ABCD"))
-# print(seriePruebaClone)
-
-# print("*"*30)
-# print("LISTA CLONADA")
-# listaClonada = seriePruebaClone.clone()
-# print(listaClonada)
-
-# listaClonada.append('E')
-# listaClonada.append('F')
-# print(listaClonada)
-
-# print("*"*30)
-# serie = Series([1,2,3,4,5,6,7,8,9])
-# print(serie)
-# print(serie.filter( lambda x: x > 5))
-
-# s1 = Series([1,2,3])
-# s2 = Series([4,5,6])
-# print(s1.extend(s2))
-
-
-# print("*"*30)
-# serie = Series([1,2,3,4,5,6,7,8,9])
-# print(serie)
-# print(serie.filter( lambda x: x > 5))
-
-# s = Series([1, 20, 50, 2, 100, 3])
-# indices = s.where(lambda x : x < 20)
-
-# print(indices)
-
-# s = Series([1, 20, 50, 2, 100, 3])
-# print(s.is_null())
-
-# s2 = Series([1, None])
-# print(s2.is_null())
-
-# s3 = Series([1, 20, 50, 2, 100, 3])
-# print(s3.is_not_null())
-
-# s4 = Series([3, None, None])
-# print(s4.is_not_null())
-
-# serieA = Series([1,2,3,4,5], name = 'Primeros')
-# print(serieA)
-
-# serieA.rename('Segundos')
-# print(serieA)
-
-# s = Series([128.0, 256.0, 42.5, 35.0])
-# print(s)
-
-# print('*'*20, 'PRUEBA SORT - ORDEN ASCENDENTE POR DEFECTO')
-# print(s.sort())
-# print(s)
-
-
-# print('*'*20, 'PRUEBA SORT + ORDEN DESCENDENTE')
-# print(s.sort(descendig= True))
-# print(s)
-
-# print('*'*20, 'PRUEBA SORT - ORDEN DESCENDENTE + MODIFICA SERIE ORIGINAL')
-# print(s.sort(descendig= True ,in_place= True))
-# print(s)
-
-# s = Series([128, 256, 42, 35])
-# indices = s.argsort()
-# print(indices)
-
-# #-----PRUEBA DE INICIALIZACION CON VALORES None-----
-
-# #Lanzamiento de errores, la serie no admite solo None
-# SerieNone = Series([None, None, None, None])
-# print(SerieNone)
-
-# #Lanzamiento de errores, la serie no se inicializa con datos de diferentes tipos.
-# SerieDiferentesTipos = Series([2,3,5.6])
-# print(SerieDiferentesTipos)
-
-# #-----------PRUEBA FILL_NULL
-# s = Series([5, None, None, 10])
-# print(s)
-
-# s.fill_null(7)
-# print(s)
-
+print(s1.min()) # 1
+#print(s2.min())     
+print(s1.max())      # 10
+#print(s2.max()) 
+print(s1.sum())     # 55
+print(s1.mean())     # 5.5
+print(s1.product()) # 3628800
+print(s1.std())     # 2.87228
+print(s1.var())     # 8.25
