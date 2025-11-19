@@ -4,72 +4,73 @@
 # estructuras de datos tabulares y los principios de diseño que las hacen posibles.
 
 class Series():
+    """
+    Clase que representa una Serie de datos, acepta cualquier tipo de datos,
+    pero todos deben ser del mismo tipo.
+    """
 
     def __init__(self, lista ,name="''", dtype= None):
-        self.chequeo_mismo_tipo(lista)
         self.lista = lista
-        self.dtype, self.dtypeString = self.chequeo_dtype(lista , dtype)
+        self.dtype = dtype
         self.name = name
         self.len = self.__len__()
 
-    def chequeo_mismo_tipo(self, lista):
+        #No se admite, Serie con todos los elementos None. 
+        self.caso_no_admitido(lista)
+
+        #dtype del usuario, define el tipo de Serie.
+        if dtype is not None:
+            self.lista = self.conversion_lista(lista, dtype)
+        #dtype = None, se infiere el tipo de Serie
+        else:
+            self.lista = self.validacion_mismo_tipo(lista)
+
+    # CASO - NO ADMITE: Todos los elementos None   
+    def caso_no_admitido(self, lista):
+        listaSinNone = [x  for x in lista if x is not None]
+        if listaSinNone == []:
+             raise TypeError("No podemos inicializar la Serie, no se admiten todos los valores None")
         
-        tipos_datos = ['int', 'float', 'str', 'bool', 'None']
+
+    # CASO 1: dtype especificado por el usuario
+    def conversion_lista(self, lista, dtype): 
+         
+        if dtype == 'str':
+            lista = [str(x) if x is not None else None for x in lista]
+            self.dtype = 'str'
+        elif dtype == 'float':
+            lista = [float(x) if x is not None else None for x in lista]
+            self.dtype = 'float'        
+        elif dtype == 'int':
+            lista = [int(x) if x is not None else None for x in lista]
+            self.dtype = 'int'        
+        elif dtype == 'bool':
+            lista = [bool(x) if x is not None else None for x in lista]
+            self.dtype = 'bool'  
+        
+        return lista
+
+
+    # CASO 2: dtype = None, se infiere el tipo.
+    def validacion_mismo_tipo(self, lista):    
 
         listaSinNone = [x  for x in lista if x is not None]
-
-        if listaSinNone == []:
-            raise TypeError("No podemos inicializar la Serie, no contiene por lo menos un tipo de dato valido")
+        #El primer dato not None, se utiliza para comparar
+        primer_tipo = type(listaSinNone[0]) 
+        
+       
         for i in listaSinNone:
-            primer_tipo = type(listaSinNone[0]) #Guardo el tipo de dato del primer valor de la lista
+            #CASO: No admite inicializacion, si hay elementos de difirente tipo
             if type(i) != primer_tipo:
                 raise TypeError("No podemos inicializar la Serie, por ser objetos de diferentes tipos")
-                
-
-    def chequeo_dtype(self, lista, dtype):
-
-        tipos_datos = {'int': int,
-                       'float' : float,
-                        'str': str,
-                        'bool': bool}
-        
-        listaSinNone = [x  for x in lista if x is not None]
-
-        #Caso usuario, no pasa dtype explicito, toma el type del primer valor de la lista filtrada sin None, ya esta validada que son todas del mismo tipo de datos
-        if dtype is None:
-                tipo_primer_elemento = type(listaSinNone[0])
-                dtype_string = str(tipo_primer_elemento)
-
-                for k, v in tipos_datos.items():
-                    if tipo_primer_elemento == v:
-                        dtype_string = k
-                        break
-                return tipo_primer_elemento, dtype_string
-        else:       
-
-            if dtype in tipos_datos:
-
-                funcion_reconversion = tipos_datos[dtype] #Tomando dtype que pasa el usuario, que es un string, lo mapeo a su tipo de dato        
-                lista_reconvertida = []
-        
-
-                for i in lista:
-
-                    if dtype == 'str':
-                        conversion = " '" + funcion_reconversion(i) + "' "
-                        lista_reconvertida.append(conversion)
-                    else:    
-                        conversion = funcion_reconversion(i)
-                        lista_reconvertida.append(conversion)
-                
-                self.lista = lista_reconvertida
+            else:
+                self.dtype = primer_tipo.__name__
+                return lista     
 
 
-                return funcion_reconversion, dtype
-            
     def __repr__(self):
         elementos = [str(self.lista[i]) for i in range(self.len)]
-        return f" Series: {self.name} \n len: {self.len} \n dtype: {self.dtypeString} \n [ \n {'\n '  .join(elementos) } \n] "
+        return f" Series: '{self.name}' \n len: {self.len} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
     
     def __len__(self):
         return len(self.lista)
@@ -80,11 +81,12 @@ class Series():
     #Metodos
     def head(self, n=5):
         elementos = [str(self.lista[i]) for i in range(n)]
-        return f" Series: {self.name} \n len: {n} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+        return f" Series: '{self.name}' \n len: {n} \n dtype: {self.dtypeString} \n [ \n {'\n '  .join(elementos) } \n] "
+
 
     def tail(self, n=5):
         elementos = [str(i) for i in self.lista[:-n-1:-1]] #Start = último valor de la lista, stop : n -1, n no lo incluye el slicing, Step: -1 reversa
-        return f" Series: {self.name} \n len: {n} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+        return f" Series: '{self.name}' \n len: {n} \n dtype: {self.dtypeString} \n [ \n {'\n '  .join(elementos) } \n] "
 
     def clone(self):
         #Creamos una nueva instancia de la clase Serie, con los datos de la lista
@@ -263,16 +265,3 @@ class Series():
 
 
 
-
-s1 = Series([1, 4, 5, 2, 10, 6, 3, 7, 8, 9])
-s2 = Series([True, True, False, True])
-
-print(s1.min()) # 1
-#print(s2.min())     
-print(s1.max())      # 10
-#print(s2.max()) 
-print(s1.sum())     # 55
-print(s1.mean())     # 5.5
-print(s1.product()) # 3628800
-print(s1.std())     # 2.87228
-print(s1.var())     # 8.25

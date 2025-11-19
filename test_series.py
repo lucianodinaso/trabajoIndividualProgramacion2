@@ -1,0 +1,15 @@
+from series import Series 
+
+print("*"*5, "Crear una serie y verificar operaciones básicas de acceso y longitud", "*"*5)
+s = Series([10, 20, 30, 40, 50], name = "valores")
+print(s.head(3))
+print(s.tail(2))
+print(len(s))
+print("*"*5, "Agregar y extender una serie, manteniendo el mismo tipo de datos", "*"*5)
+s1 = Series([10, 20, 30])
+s2 = Series([4, 5])
+s1.append(31)
+print(s1)
+s3 = Series([1, 2, 3])
+s3.append(3.4)
+print(s3)
