@@ -5,7 +5,8 @@
 
 class Series():
     """
-    Clase que representa una Serie de datos, acepta cualquier tipo de datos,
+    Clase que representa una Serie de datos, 
+    acepta cualquier tipo de datos,
     pero todos deben ser del mismo tipo.
     """
 
@@ -15,17 +16,17 @@ class Series():
         self.name = name
         self.len = self.__len__()
 
-        #No se admite, Serie con todos los elementos None. 
+        #No se admite Series con todos los elementos None. 
         self.caso_no_admitido(lista)
 
-        #dtype del usuario, define el tipo de Serie.
+        #dtype del usuario, define el tipo de Series.
         if dtype is not None:
             self.lista = self.conversion_lista(lista, dtype)
-        #dtype = None, se infiere el tipo de Serie
+        #dtype = None, se infiere el tipo de Series
         else:
             self.lista = self.validacion_mismo_tipo(lista)
 
-    # CASO - NO ADMITE: Todos los elementos None   
+    # CHEQUEO - NO ADMITE: Todos los elementos None   
     def caso_no_admitido(self, lista):
         listaSinNone = [x  for x in lista if x is not None]
         if listaSinNone == []:
@@ -66,27 +67,17 @@ class Series():
             else:
                 self.dtype = primer_tipo.__name__
                 return lista     
-
-
-    def __repr__(self):
-        elementos = [str(self.lista[i]) for i in range(self.len)]
-        return f" Series: '{self.name}' \n len: {self.len} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
     
-    def __len__(self):
-        return len(self.lista)
-    
-    def __iter__(self):
-        return iter(self.lista)
-
-    #Metodos
+    '''
+    METODOS PARA MANIPULAR DATOS
+    '''
     def head(self, n=5):
         elementos = [str(self.lista[i]) for i in range(n)]
-        return f" Series: '{self.name}' \n len: {n} \n dtype: {self.dtypeString} \n [ \n {'\n '  .join(elementos) } \n] "
-
+        return f" Series: '{self.name}' \n len: {n} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
 
     def tail(self, n=5):
-        elementos = [str(i) for i in self.lista[:-n-1:-1]] #Start = último valor de la lista, stop : n -1, n no lo incluye el slicing, Step: -1 reversa
-        return f" Series: '{self.name}' \n len: {n} \n dtype: {self.dtypeString} \n [ \n {'\n '  .join(elementos) } \n] "
+        elementos = [str(i) for i in self.lista[-n:]] #Start = último valor de la lista, stop : n -1, n no lo incluye el slicing, Step: -1 reversa
+        return f" Series: '{self.name}' \n len: {n} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
 
     def clone(self):
         #Creamos una nueva instancia de la clase Serie, con los datos de la lista
@@ -94,24 +85,34 @@ class Series():
         return listaClon
     
     def append(self, x):
-        self.lista.append(x) #utilizó el metodo build in
-        self.len = len(self.lista) #actualiza la longitud de la lista 
+        tipo_dato_usuario = type(x).__name__
+
+        if tipo_dato_usuario != self.dtype:
+            raise TypeError("No se puede agregar un valor de diferente tipo")
+        else:
+            self.lista.append(x) 
+            #actualiza la longitud de la lista 
+            self.len = len(self.lista) 
         return self.lista
 
     def extend(self, s):
 
         for i in s.lista:
-            self.lista.append(i)
+            if type(i).__name__ != self.dtype:
+                raise TypeError("No se admiten valores de diferente tipo")
+            else:
+                self.lista.append(i)
 
-        self.len = len(self.lista) #actualiza la longitud de la lista 
+        #actualiza la longitud de la lista 
+        self.len = len(self.lista) 
 
         return self
 
     def filter(self, f):
+
         nuevaSerie = []
 
         for i in self.lista:
-
             #Aplica la funcion de la llamada , a cada elemento.
             if f(i):
                 nuevaSerie.append(i)
@@ -123,7 +124,6 @@ class Series():
         nuevaSerie = []
 
         for indice, i in enumerate(self.lista):
-
             #Aplica la funcion de la llamada , a cada elemento.
             if f(i):
                 nuevaSerie.append(indice)
@@ -159,7 +159,9 @@ class Series():
     
     def fill_null(self, x):
 
-        if type(x) == self.dtype:
+        tipo_dato_usuario = type(x).__name__
+
+        if tipo_dato_usuario == self.dtype:
 
             for indice, v in enumerate(self.lista):
                 if v is None:
@@ -198,22 +200,33 @@ class Series():
             return self
         
     def argsort(self, descendig =  False):
+        '''
+            Devuelve una lista con los indices que ordenan a la serie.
+            El parámetro descending determina si se ordena de forma
+            ascendente (por defecto) o descendente.
+        '''
 
         serie_indice_valor = enumerate(self.lista)
 
         lista_indices_ordenados = sorted(serie_indice_valor, key = lambda x : x[1])
         lista_indices_finales = [indices for indices, i in lista_indices_ordenados]
-        
-        
+    
         return lista_indices_finales
     
     def chequeo_serie_nuemrica(self):
 
-        if self.dtypeString not in ['int', 'float']:
+        if self.dtype not in ['int', 'float']:
             raise TypeError('La función requiere valores númericos')
         else:
             return True
-        
+    
+    '''
+    METODOS DE AGREGACION
+    Los siguientes métodos obtinen un valor a partir de todos
+    los valores de la serie. 
+    En todos los calos se ignoran los valores nulos.
+    Solo se pueden aplicar a series numéricas
+    '''
     def get_lista_numerica(self):
         listaSinNone = [x  for x in self.lista if x is not None]
         
@@ -237,7 +250,6 @@ class Series():
         lenListaSinNone = len([x  for x in self.lista if x is not None])
         return sum(self.get_lista_numerica()) / lenListaSinNone
 
-    
     def product(self):
         self.chequeo_serie_nuemrica()
         resultado = 1
@@ -262,6 +274,156 @@ class Series():
     
     def std(self):
         return self.var()**0.5
+    
+    '''
+    METODOS ESPECIALES
+    Estos operadores solo se pueden utilizar con series de tipo numérico.
+    Si other es un número, se recicla para todos los elementos de la Serie.
+    Si other es otra Series, deben tener la misma longitud y la operación
+    se hace elemento a elemento.
+    '''
+
+
+    def __eq__(self, other):
+        '''Igual a'''
+
+        if isinstance(other, (int, float)):
+            return [i == other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x == y for x, y in zip(self.lista, other)]
+
+    
+    def __gt__(self, other):
+        '''Mayor que'''
+
+        if isinstance(other, (int, float)):
+            return [i > other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x > y for x, y in zip(self.lista, other)]
+
+    def __ge__(self, other):
+        '''Mayor o igual que'''
+
+        if isinstance(other, (int, float)):
+            return [i >= other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x >= y for x, y in zip(self.lista, other)]
+
+
+    def __lt__(self, other):
+        '''Menor que'''
+
+        if isinstance(other, (int, float)):
+            return [i < other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x < y for x, y in zip(self.lista, other)]
+
+
+    def __le__(self, other):
+        '''Menor que'''
+
+        if isinstance(other, (int, float)):
+            return [i <= other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x <= y for x, y in zip(self.lista, other)]
+
+
+    def __add__(self, other):
+        '''Suma'''
+
+        if isinstance(other, (int, float)):
+            return [i + other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x + y for x, y in zip(self.lista, other)]
+
+
+    def __sub__(self, other):
+        '''Resta'''
+
+        if isinstance(other, (int, float)):
+            return [i - other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x - y for x, y in zip(self.lista, other)]
+
+
+    def __mul__(self, other):
+        '''Multiplicacion'''
+
+        if isinstance(other, (int, float)):
+            return [i * other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x * y for x, y in zip(self.lista, other)]
+
+
+    def __truediv__(self, other):
+        '''Division flotante'''
+
+        if isinstance(other, (int, float)):
+            return [i / other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x / y for x, y in zip(self.lista, other)]
+            
+
+    def __pow__(self, other):
+        '''Potencia'''
+
+        if isinstance(other, (int, float)):
+            return [i ** other for i in self.lista]
+        elif isinstance(other, Series):
+            if len(other) != self.len:
+                raise TypeError("Las series no son de la misma longitud")
+            else:
+                return [x ** y for x, y in zip(self.lista, other)]
+            
+    '''
+    METODOS DE ACCESO E ITERACION
+
+    '''
+    
+    def __repr__(self):
+        elementos = [str(self.lista[i]) for i in range(self.len)]
+        return f" Series: '{self.name}' \n len: {self.len} \n dtype: {self.dtype} \n [ \n {'\n '  .join(elementos) } \n] "
+    
+    def __len__(self):
+        return len(self.lista)
+    
+        
+    '''Determina si un elemento está en la serie (operador "in")'''
+    def __contains__(self, item):
+        return item in self.lista
+    
+    def __getitem__(self, index):
+        return self.lista[index]
+    
+    def __iter__(self):
+        return iter(self.lista)
 
 
 
