@@ -80,40 +80,7 @@ class DataFrame:
             serie_temp = Series(valores_columna)
             serie_temp.validacion_mismo_tipo(valores_columna)
 
-        
-
-    def __len__(self):
-        return self.height
-
-    def __repr__(self):
-
-        #Encabezado
-        header = " | ".join(self.columns)
-
-        #Separador
-        separador = "-"*len(header)
-
-        #Filas
-        filas = []
-
-        for i in range(self.height):
-
-            valores_filas_str = []
-
-            for columna in self.columns:
-                valor = self.data[columna][i]
-                # .ljust Alinea cada valor al ancho de su columna
-                valores_filas_str.append(str(valor).ljust(len(columna)))
-
-            filas_str = " | ".join(valores_filas_str)
-            filas.append(filas_str)
-
-
-        
-        tabla = "\n".join([separador, header , separador] + filas + [separador])
-
-        return f" shape: {self.shape} \n {tabla}  "
-    
+       
       
     '''
     METODOS PARA MANIPULAR DATOS
@@ -278,6 +245,9 @@ class DataFrame:
             for columna, funcion in predicates:
                 valor = self.data[columna][indice_fila]
 
+                if valor is None:
+                    cumple_condiciones = False
+                    break
                 # Aplicar la función condición al valor
                 if not funcion(valor):
                     # Si una condición falla, esta fila NO cumple
@@ -296,12 +266,147 @@ class DataFrame:
                 self.data[columna][indice] for indice in nuevo_dataFrame_indices
             ]
         return DataFrame(nuevo_dataFrame)
+    
+
+    def drop_nulls(self):
+        ''' Elimina tolas las filas que contengan nulos'''
+
+        indices_filas_validas = []
+
+        for indice_fila in range(self.height):
+            
+            fila_valida = True
+
+            # Verificar si esta fila tiene algún nulo
+            for columna in self.data:
+                valor = self.data[columna][indice_fila]
+
+                # Si encuentra un nulo, ya sabemos que la fila tiene nulos
+                if valor is None:
+                    fila_valida = False
+                    break
+            
+            #Si no encontro None en la fila, lo guarda 1 vez al indice
+            if fila_valida:
+                indices_filas_validas.append(indice_fila)
+
+        #Creamos un nuevo df con los indices que pasaron la validacion
+        nuevo_df = {}
+
+        # Para cada columna, tomar solo los valores de las filas buenas
+        for columna in self.columns:
+
+            lista_filtrada = []
+
+            for indice in indices_filas_validas:
+                valor = self.data[columna][indice]
+                lista_filtrada.append(valor)
+
+                nuevo_df.update({columna : lista_filtrada})
+        
+        return DataFrame(nuevo_df)
+    
+
+    def sort(self, name, descending = False):
+
+        if name not in self.columns:
+            raise TypeError("La columna no es valida")
+        
+        #Columna por la que vamos a ordenar
+        columna_ordenar =  self.data[name]
+        
+        # Separar índices con valores y con None
+        indices_con_valor = []
+        indices_con_none = []
+
+        serie_indice_valor = list(enumerate(columna_ordenar))
+
+        for i, valor in serie_indice_valor:
+            if valor is not None:
+                indices_con_valor.append((i, valor))
+            else:
+                indices_con_none.append(i)
+
+        lista_indices_ordenados = sorted(indices_con_valor, key = lambda x : x[1], reverse=descending)
+        lista_indices_finales = [indices for indices, i in lista_indices_ordenados]
+        
+        # Agregar los None al FINAL (sin importar si es ascendente o descendente)
+        lista_indices_finales.extend(indices_con_none)
+    
+
+        nuevo_data = {}
+        for columna in self.columns:
+            nuevo_data[columna] = [self.data[columna][i] for i in lista_indices_finales]
+    
+        return DataFrame(nuevo_data)
+
+
+
+    '''METODOS ESPECIALES'''
+
+    def __len__(self):
+        return self.height
+
+    def __repr__(self):
+
+        #Calculo del tamaño de las columnas
+        anchos_columnas = {}
+    
+        for columna in self.columns:
+            # Encontrar el valor más ancho en esta columna
+            ancho_maximo = len(columna)  # Empezar con el ancho del nombre
+        
+            for valor in self.data[columna]:
+                ancho_valor = len(str(valor))
+                if ancho_valor > ancho_maximo:
+                    ancho_maximo = ancho_valor
+        
+            # Aplicar límite de 20 caracteres
+            anchos_columnas[columna] = min(ancho_maximo, 20)
+
+
+        #Encabezado
+        header = " | ".join(columna.ljust(anchos_columnas[columna])
+                            for columna in self.columns)
+
+        #Separador
+        separador = "-"*len(header)
+
+        #Filas
+        filas = []
+
+        for i in range(self.height):
+
+            valores_filas_str = []
+
+            for columna in self.columns:
+                
+                valor = self.data[columna][i]
+                # .ljust Alinea cada valor al ancho de su columna
+                valores_filas_str.append(str(valor).ljust(anchos_columnas[columna]))
+
+            filas_str = " | ".join(valores_filas_str)
+            filas.append(filas_str)
+
+        tabla = "\n".join([separador, header , separador] + filas + [separador])
+
+        return f" shape: {self.shape} \n {tabla}  "
+    
+
+    def __getitem__(self, name):
+        
+        if name in self.columns:
+            from series import Series
+            return Series(self.data[name])
+        else:
+            raise TypeError("La columna no existe")
+
 
 
 #Sentencias de prueba
-df = DataFrame({'x': [1, 2, 3, 4, 5, 6],
-                'y': [10,20,30,40,50,60],
-                'z': ["a","b","c","d","e","f"]})
+df = DataFrame({'x': [100, 20, 3, 444, 55, 6],
+                'y': [10,20,30,40,None,60],
+                'z': ["a","b","c","d","e",None]})
 
 #print(df)
 # print(df.columns)
@@ -315,7 +420,14 @@ df = DataFrame({'x': [1, 2, 3, 4, 5, 6],
 # print(df.head(1))
 # print(df.tail(2))
 #print(df.select('puesto'))
-print(df.filter(
-    ("x", lambda x: x % 2 != 0),
-    ("y", lambda x: x > 30)
-))
+# print(df.filter(
+#     ("x", lambda x: x % 2 != 0),
+#     ("y", lambda x: x > 30)
+# ))
+
+#print(df['x'])
+
+#print(df.drop_nulls())
+print(df)
+
+print(df.sort('x', descending=True))
