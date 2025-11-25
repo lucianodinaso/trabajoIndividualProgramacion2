@@ -397,37 +397,22 @@ class DataFrame:
         
         if name in self.columns:
             from series import Series
-            return Series(self.data[name])
+            return Series(self.data[name], name= name)
         else:
             raise TypeError("La columna no existe")
-
-
-
-#Sentencias de prueba
-df = DataFrame({'x': [100, 20, 3, 444, 55, 6],
-                'y': [10,20,30,40,None,60],
-                'z': ["a","b","c","d","e",None]})
-
-#print(df)
-# print(df.columns)
-#print(df.dtypes)
-# print(df.shape)
-# print(df.height)
-# print(df.width)
-# print(df.dtypes)
-#print(df.schema)
-
-# print(df.head(1))
-# print(df.tail(2))
-#print(df.select('puesto'))
-# print(df.filter(
-#     ("x", lambda x: x % 2 != 0),
-#     ("y", lambda x: x > 30)
-# ))
-
-#print(df['x'])
-
-#print(df.drop_nulls())
-print(df)
-
-print(df.sort('x', descending=True))
+        
+    
+    def __setitem__(self, name, value):
+        '''Permite asignar nuevas columnas: df["nueva_col"] = valor'''
+        if isinstance(value, Series):
+            # Si es una Serie, usar sus valores
+            self.data[name] = value.lista
+        else:
+            # Si es otra cosa (lista, resultado de operación)
+            self.data[name] = list(value)
+        
+        # Actualizar atributos
+        if name not in self.columns:
+            self.columns.append(name)
+        self.calcular_dimension()
+        self.inferir_types()  # Actualizar tipos

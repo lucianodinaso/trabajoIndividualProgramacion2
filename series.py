@@ -288,120 +288,155 @@ class Series():
         '''Igual a'''
 
         if isinstance(other, (int, float)):
-            return [i == other for i in self.lista]
+            nueva_lista = [i == other  if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x == y for x, y in zip(self.lista, other)]
+                nueva_lista = [x == y if(x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
-    
     def __gt__(self, other):
         '''Mayor que'''
 
         if isinstance(other, (int, float)):
-            return [i > other for i in self.lista]
+            nueva_lista = [i > other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x > y for x, y in zip(self.lista, other)]
+                nueva_lista = [x > y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __ge__(self, other):
         '''Mayor o igual que'''
 
         if isinstance(other, (int, float)):
-            return [i >= other for i in self.lista]
+            nueva_lista = [i >= other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x >= y for x, y in zip(self.lista, other)]
-
+                nueva_lista = [x >= y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __lt__(self, other):
         '''Menor que'''
 
         if isinstance(other, (int, float)):
-            return [i < other for i in self.lista]
+            nueva_lista = [i < other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x < y for x, y in zip(self.lista, other)]
-
+                nueva_lista = [x < y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __le__(self, other):
         '''Menor que'''
 
         if isinstance(other, (int, float)):
-            return [i <= other for i in self.lista]
+            nueva_lista = [i <= other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x <= y for x, y in zip(self.lista, other)]
-
+                nueva_lista = [x <= y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __add__(self, other):
         '''Suma'''
 
         if isinstance(other, (int, float)):
-            return [i + other for i in self.lista]
+            nueva_lista = [i + other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x + y for x, y in zip(self.lista, other)]
-
+                nueva_lista = [x + y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __sub__(self, other):
         '''Resta'''
 
         if isinstance(other, (int, float)):
-            return [i - other for i in self.lista]
+            nueva_lista = [i - other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x - y for x, y in zip(self.lista, other)]
-
+                nueva_lista = [x - y if (x is not None and y is not None) else None  for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __mul__(self, other):
         '''Multiplicacion'''
 
         if isinstance(other, (int, float)):
-            return [i * other for i in self.lista]
+            nueva_lista = [i * other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x * y for x, y in zip(self.lista, other)]
-
+                nueva_lista = [x * y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
 
     def __truediv__(self, other):
         '''Division flotante'''
 
         if isinstance(other, (int, float)):
-            return [i / other for i in self.lista]
+            nueva_lista = [i / other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x / y for x, y in zip(self.lista, other)]
-            
+                nueva_lista = [x / y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
+      
 
     def __pow__(self, other):
         '''Potencia'''
 
         if isinstance(other, (int, float)):
-            return [i ** other for i in self.lista]
+            nueva_lista =  [i ** other if i is not None else None for i in self.lista]
+            return Series(nueva_lista, name = self.name)
         elif isinstance(other, Series):
             if len(other) != self.len:
                 raise TypeError("Las series no son de la misma longitud")
             else:
-                return [x ** y for x, y in zip(self.lista, other)]
-            
+                nueva_lista = [x ** y if (x is not None and y is not None) else None for x, y in zip(self.lista, other)]
+                return Series(nueva_lista, name = self.name)
+        else:
+            raise TypeError("Operación no soportada")
+      
+
+
     '''
     METODOS DE ACCESO E ITERACION
 
